@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<title>upload</title>
+  
+
+<input type="file" id="selector">
+<button onclick="upload()">Upload</button>
+
+<div id="status">No uploads</div>
+
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+<script type="text/javascript">
+
+function upload() {
+    let files = $('#selector')[0].files;
+    // 不能用
+    $.each(files,
+    //files.forEach(
+        function(i,file){
+        alert(file.name);
+        // Retrieve a URL from our server.
+        //retrieveNewURL(url => {
+        var url = "http://139.196.14.215:9000/mybucket/test.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=OIV5MPODN1Z2ID8R935X%2F20161027%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20161027T073504Z&X-Amz-Expires=259200&X-Amz-SignedHeaders=host&X-Amz-Signature=981d828219961a7f19b33ea1512ab028656f4d3127a497d7674269e7394ce607";
+            // Upload the file to the server.
+        uploadFile(file, url)
+        }
+       // })
+    )}
+
+// Request to our Node.js server for an upload URL.
+function retrieveNewURL(cb) {
+    $.get('http://YOUR_SERVER:8080/presignUrl', (url) => {
+        cb(url)
+    })
+}
+
+// Use AJAX to upload the file to S3.
+function uploadFile(file, url) {
+    let data = new FormData();
+    //没有file.name
+    data.append(file.name, file)
+
+    $.ajax({
+        url: url,
+        method: 'PUT',
+        success: () => {
+            $('#status').text(`Uploaded ${file.name}.`)
+        },
+        enctype: 'multipart/form-data',
+        processData: false,
+        contentType: false,
+        data
+    })
+}
+
+</script>
+
+</body>
+</html>
