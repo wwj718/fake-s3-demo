@@ -10,6 +10,8 @@
 
 <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
 <script type="text/javascript">
+//使用react
+//多文件上传是怎么实现的  多个key
 
 function upload() {
     let files = $('#selector')[0].files;
@@ -28,6 +30,7 @@ function upload() {
     )}
 
 // Request to our Node.js server for an upload URL.
+//每次上传都要请求 url  key
 function retrieveNewURL(cb) {
     $.get('http://YOUR_SERVER:8080/presignUrl', (url) => {
         cb(url)
@@ -37,7 +40,6 @@ function retrieveNewURL(cb) {
 // Use AJAX to upload the file to S3.
 function uploadFile(file, url) {
     let data = new FormData();
-    //没有file.name
     data.append(file.name, file)
 
     $.ajax({
