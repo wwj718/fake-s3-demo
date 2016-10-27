@@ -7,7 +7,8 @@ from minio import Minio
 from minio.error import ResponseError
 from datetime import timedelta
 
-minio_server = "127.0.0.1:9000"
+#minio_server = "127.0.0.1:9000"
+minio_server = "139.196.14.215:9000"
 access_key = "OIV5MPODN1Z2ID8R935X"
 secret_key = "rHJJn3kyhtnTs9c7VjeMU72Cf1X+ntoM36adWU3I"
 region = "us-east-1"
@@ -31,7 +32,7 @@ create_or_get_bucket("mybucket")
 
 try:
         print(minioClient.presigned_put_object('mybucket',  # 默认是没有仓库的，初始化要创建
-                                                  'myobject',
+                                                  'test.txt',
                                                   expires=timedelta(days=3)))
         # Response error is still possible since internally presigned does get
         # bucket location.

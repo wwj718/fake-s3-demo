@@ -8,8 +8,10 @@ for [openEduMedia](https://github.com/openEduClub/openEduMedia)
 
 # 组件
 *  minio
-    *  [python client presigned_put_object](https://docs.minio.io/docs/python-client-api-reference#presigned_put_object)
     *  [Upload files from browser using pre-signed URLs](https://docs.minio.io/docs/upload-files-from-browser-using-pre-signed-urls)
+    *  [RoR Resume Uploader App](https://docs.minio.io/docs/ror-resume-uploader-app)  使用aws
+    *  [python client presigned_put_object](https://docs.minio.io/docs/python-client-api-reference#presigned_put_object)  无法用于上传
+
 
 # minio
 ### 安装与启动
