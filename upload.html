@@ -25,19 +25,24 @@ function upload() {
         var url = "http://139.196.14.215:9000/mybucket/test.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=OIV5MPODN1Z2ID8R935X%2F20161027%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20161027T073504Z&X-Amz-Expires=259200&X-Amz-SignedHeaders=host&X-Amz-Signature=981d828219961a7f19b33ea1512ab028656f4d3127a497d7674269e7394ce607";
             // Upload the file to the server.
         uploadFile(file, url)
+        //}
         }
        // })
     )}
 
 // Request to our Node.js server for an upload URL.
 //每次上传都要请求 url  key
-function retrieveNewURL(cb) {
-    $.get('http://YOUR_SERVER:8080/presignUrl', (url) => {
+//传参过去 file.name 以便设置文件名
+function retrieveNewURL(cb) {  //cb: callback 基于事件，何时回来呢
+    //可以先本地跑起来服务，flask跑起来 , 之后翻译为django
+    presignUrl = "http://YOUR_SERVER:8080/presignUrl"
+    $.get(presignUrl, (url) => { //成功
         cb(url)
     })
 }
 
 // Use AJAX to upload the file to S3.
+// https://github.com/odysseyscience/react-s3-uploader   直接获取url就行  完美！
 function uploadFile(file, url) {
     let data = new FormData();
     data.append(file.name, file)
