@@ -15,6 +15,7 @@ region = "us-east-1"
 
 
 # 写一个类
+class minioClient():pass
 minioClient = Minio( minio_server,
                   access_key= access_key,
                   secret_key = secret_key,
@@ -30,11 +31,22 @@ def create_or_get_bucket(bucket_name):
 # presigned Put object URL for an object name, expires in 3 days.
 create_or_get_bucket("mybucket")
 
+# bucket = "mybucket"
+# Key = test
+# 文件类型和后缀无关
+# 文件名是怎么决定，key+文件名 看七牛的实现
+
 try:
         print(minioClient.presigned_put_object('mybucket',  # 默认是没有仓库的，初始化要创建
-                                                  'test.txt',
+                                                  'test',
                                                   expires=timedelta(days=3)))
         # Response error is still possible since internally presigned does get
         # bucket location.
 except ResponseError as err:
         print(err)
+
+
+# todo  上传后，nginx观看
+# from minio import PostPolicy  设置控制项目
+# 测试驱动
+# 使用requests/httpie测试
