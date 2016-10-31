@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+#!/usr/bin/env/python
+import boto3
+from botocore.client import Config
+
+# https://docs.minio.io/docs/ror-resume-uploader-app  upload demo
+# 多传了一次 当做抽象后端使用
+#http://127.0.0.1:9000
+# uuid
+from minio import Minio
+from minio.error import ResponseError
+from datetime import timedelta
+
+#minio_server = "127.0.0.1:9000"
+minio_server = "http://139.196.14.215:9000"
+access_key = "OIV5MPODN1Z2ID8R935X"
+secret_key = "rHJJn3kyhtnTs9c7VjeMU72Cf1X+ntoM36adWU3I"
+region = "us-east-1"
+bucket = "mybucket"
+
+# boto3.resource  是否有直传 回调
+s3 = boto3.client('s3',
+                    endpoint_url=minio_server,
+                    aws_access_key_id= access_key,
+                    aws_secret_access_key= secret_key,
+                    config=Config(signature_version='s3v4'),
+                    region_name=region)
+#import ipdb;ipdb.set_trace()
+# Generating Presigned URLs
