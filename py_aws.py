@@ -5,7 +5,7 @@ from botocore.client import Config
 import requests
 
 import flask
-#import mimetypes
+import mimetypes
 import json
 from flask import Flask
 from flask import request
@@ -36,19 +36,30 @@ s3 = boto3.client('s3',
 @app.route('/get_put_url',methods=["GET",'POST'])
 def get_put_url():
     object_name = request.args.get('objectName') #中文 url化
+    content_type = mimetypes.guess_type(object_name)[0]
+    print content_type
+    # 同时需要文件类型
     #content_type = mimetypes.guess_type(object_name)[0]
     bucket_name = "mybucket"
     #time.sleep(5) #为了要延时  诡异的bug  单进程的原因？ 之前的为也是这个引起？
 
     url = s3.generate_presigned_url(
     ClientMethod='put_object',
+    # ACL, Body, Bucket, CacheControl, ContentDisposition, ContentEncoding, ContentLanguage, ContentLength, ContentMD5, ContentType, Expires, GrantFullControl, GrantRead, GrantReadACP, GrantWriteACP, Key, Metadata, ServerSideEncryption, StorageClass, WebsiteRedirectLocation, SSECustomerAlgorithm, SSECustomerKey, SSECustomerKeyMD5, SSEKMSKeyId, RequestPayer
     Params={
         'Bucket': bucket_name,
-        'Key': object_name
-    })
-
-    return flask.jsonify({'url':url}) #中文
+        'Key': object_name,
+        #'ContentType': content_type, 加上这个就有问题
+        #'ACL': "public-read",
+    },
+    )
+    #直接上传
+    requests.put(url, data=open("/tmp/test.txt").read())
+    #return flask.jsonify({'url':url}) #中文
     #print(put_url)
+
+#get_put_url()
+# http://boto3.readthedocs.io/en/latest/guide/s3.html#generating-presigned-urls
 
 @app.route('/get_get_url',methods=["GET"])
 def get_get_url():
