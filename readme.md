@@ -39,6 +39,17 @@ npm install -g create-react-app
 create-react-app upload-app
 ```
 
+### start and build
+
+```
+npm start # 开发
+npm run build # 发布
+```
+
+build之后到upload-app/build目录下: `python -m SimpleHTTPServer 8000`
+
+
+
 # 开发
 我在mac下开发，对应的minio版本为[darwin-amd64/minio](https://dl.minio.io/server/minio/release/darwin-amd64/minio)
 

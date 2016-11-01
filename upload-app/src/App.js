@@ -74,7 +74,7 @@ function retrieveNewURL(file, callback)
         req.query(params);//http://visionmedia.github.io/superagent/#get-requests
         req.end(function(err, res){
         // Calling the end function will send the request
-          //
+        //
            var url = res.body['url']
            console.log("retrieveNewURL",res.body['url']);
            callback(url);
@@ -83,17 +83,37 @@ function retrieveNewURL(file, callback)
   }
 
 
-function uploadFile(file, url)
+//正式上传
+// 进度条 html5就能做到 : http://www.ruanyifeng.com/blog/2012/08/file_upload.html
+// The best way to upload files, with progress events, is still using XHR directly rather than fetch
+// http://stackoverflow.com/questions/28750489/upload-file-component-with-reactjs 终极
+  function uploadFile(file, url)
     {
         let data = new FormData();
         data.append(file.name, file)
         console.log(url);
         //使用request
+        // fetch 进度条    Upload Progress Bars
+        /*
+        //fetch 不支持进度条 需要用xhr
         fetch(url,
         {
             method: 'PUT',
             body: data,
+        })*/
+        var req = request.put(url)
+        .set("Content-Type", "application/octet-stream") //ok 没有webkit标识了
+        .send(file)
+        .on('progress', function(e) {
+            console.log('Percentage done: ', e.percent); //ok 如何取消 promise无法被取消  进度条只是ui
+          })
+        req.end(function(err, res){
+        // Calling the end function will send the request
+          //
+           console.log("ok",res);
         })
+
+
     }
 
 

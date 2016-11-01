@@ -73,29 +73,22 @@ def get_object_list():
     return flask.jsonify({'url':url})
 
 
-@app.route('/delete/object_uuid',methods=["DELETE"])
-def delete_object():
+@app.route('/delete/<object_uuid>',methods=["DELETE"])
+def delete_object(object_uuid):
     '''
     删除：
         *  本地字段
         *  删除monio
     '''
     bucket_name = "mybucket"
-    url = s3.generate_presigned_url(
-    ClientMethod='get_object',
-    Params={
-        'Bucket': bucket_name,
-        'Key': "video_frequent_replays.png"
-    })
-
-    return flask.jsonify({'url':url}) #中文
+    return flask.jsonify({'object_uuid':object_uuid}) #中文
     #print(put_url)
 
 
 
 
 
-@app.route('/get_get_url',methods=["GET"])
+@app.route('/get_get_url',methods=["GET"]) # flask : send_from_directory
 def get_get_url():
     bucket_name = "mybucket"
     url = s3.generate_presigned_url(
