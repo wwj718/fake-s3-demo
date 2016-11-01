@@ -1,4 +1,5 @@
 # fake-s3 
+
 构建仿s3的存储服务
 
 for [openEduMedia](https://github.com/openEduClub/openEduMedia)
@@ -31,6 +32,12 @@ mkdir ~/minio_test
 pip install minio
 ```
 
+# 前端
+```
+npm config set registry https://registry.npm.taobao.org #设置taobao源
+npm install -g create-react-app
+create-react-app upload-app
+```
 
 # 开发
 我在mac下开发，对应的minio版本为[darwin-amd64/minio](https://dl.minio.io/server/minio/release/darwin-amd64/minio)

@@ -1,66 +1,98 @@
 <!DOCTYPE html>
 <html>
 <title>upload</title>
-  
+
 
 <input type="file" id="selector">
 <button onclick="upload()">Upload</button>
 
 <div id="status">No uploads</div>
 
-<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+<script src="http://cdn.bootcss.com/jquery/3.1.0/jquery.min.js"></script>
 <script type="text/javascript">
-//使用react
-//多文件上传是怎么实现的  多个key
+    // 使用react
+    // 多文件上传是怎么实现的  多个key
+    // 先搞好这个吧
+    // 使用这个就不能使用功能完备的上传组件了
+    function upload()
+    {
+        let files = $('#selector')[0].files;
+        // 不能用
+        $.each(files,
+            //files.forEach(
+            function(i, file)
+            {
+                //alert(file.name);
 
-function upload() {
-    let files = $('#selector')[0].files;
-    // 不能用
-    $.each(files,
-    //files.forEach(
-        function(i,file){
-        alert(file.name);
-        // Retrieve a URL from our server.
-        //retrieveNewURL(url => {
-        var url = "http://139.196.14.215:9000/mybucket/test.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=OIV5MPODN1Z2ID8R935X%2F20161027%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20161027T073504Z&X-Amz-Expires=259200&X-Amz-SignedHeaders=host&X-Amz-Signature=981d828219961a7f19b33ea1512ab028656f4d3127a497d7674269e7394ce607";
-            // Upload the file to the server.
-        uploadFile(file, url)
-        //}
-        }
-       // })
-    )}
+                // Retrieve a URL from our server.
+                // fetch
+                retrieveNewURL(file, (url) =>
+                {
+                    //var url = "http://139.196.14.215:9000/mybucket/test.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=OIV5MPODN1Z2ID8R935X%2F20161027%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20161027T073504Z&X-Amz-Expires=259200&X-Amz-SignedHeaders=host&X-Amz-Signature=981d828219961a7f19b33ea1512ab028656f4d3127a497d7674269e7394ce607";
+                    // Upload the file to the server.
+                    //console.log(file.name)
+                    uploadFile(file, url)
+                })
+            })
+    }
 
-// Request to our Node.js server for an upload URL.
-//每次上传都要请求 url  key
-//传参过去 file.name 以便设置文件名
-function retrieveNewURL(cb) {  //cb: callback 基于事件，何时回来呢
-    //可以先本地跑起来服务，flask跑起来 , 之后翻译为django
-    presignUrl = "http://YOUR_SERVER:8080/presignUrl"
-    $.get(presignUrl, (url) => { //成功
-        cb(url)
-    })
-}
+    // Request to our Node.js server for an upload URL.
+    //每次上传都要请求 url  key
+    //传参过去 file.name 以便设置文件名
+    //使用fetch重写
+    function retrieveNewURL(file, cb)
+    { //cb: callback 基于事件，何时回来呢
+        //可以先本地跑起来服务，flask跑起来 , 之后翻译为django
+        const params = {
+            objectName: file.name,
+            contentType: file.type
+        };
+        presignUrl = "http://127.0.0.1:5000/get_put_url"
+            //fetch
+        $.get(presignUrl, params, (url) =>
+        { //成功
+            console.log(url);
+            cb(url['url'])
+        })
+    }
 
-// Use AJAX to upload the file to S3.
-// https://github.com/odysseyscience/react-s3-uploader   直接获取url就行  完美！
-function uploadFile(file, url) {
-    let data = new FormData();
-    data.append(file.name, file)
-
-    $.ajax({
-        url: url,
-        method: 'PUT',
-        success: () => {
-            $('#status').text(`Uploaded ${file.name}.`)
-        },
-        enctype: 'multipart/form-data',
-        processData: false,
-        contentType: false,
-        data
-    })
-}
-
+    // Use AJAX to upload the file to S3.
+    // https://github.com/odysseyscience/react-s3-uploader   直接获取url就行  完美！
+    function uploadFile(file, url)
+    {
+        let data = new FormData();
+        data.append(file.name, file)
+            //ok 说明是url被转码了?
+            //url = "http://139.196.14.215:9000/mybucket/test?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=OIV5MPODN1Z2ID8R935X%2F20161027%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20161027T154314Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0c25cebc5ca2caec167697686e9ea898d5053cc00438558572607d0499186b71"
+        console.log(url);
+        //url = `${url}`
+        //console.log(typeof(url));
+        //url = "http://139.196.14.215:9000/mybucket/test?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=OIV5MPODN1Z2ID8R935X%2F20161027%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20161027T155716Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=588047e0b0d7f465199a53e73063a33d10de6260b870d3972a7ad78aa23a444c"
+        //url = "http://139.196.14.215:9000/mybucket/test?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=OIV5MPODN1Z2ID8R935X%2F20161027%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20161027T154834Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b439e91d2c5d554fb97178e5ca753d41d46263bef33392279115ee0e72b6d1d5"
+        /*
+        $.ajax(
+        {
+            url: url,
+            method: 'PUT',
+            success: () =>
+            {
+                $('#status').text(`Uploaded ${file.name}.`)
+            },
+            //https://github.com/github/fetch/issues/168
+            //enctype: 'multipart/form-data',
+            processData: false,
+            contentType: file.type,
+            data
+        })*/
+        fetch(url,
+        {
+            method: 'PUT',
+            body: data,
+            headers: {"Content-Type": file.type}
+        })
+    }
 </script>
 
 </body>
+
 </html>

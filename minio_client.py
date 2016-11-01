@@ -2,11 +2,23 @@
 # encoding: utf-8
 
 #http://127.0.0.1:9000
-# uuid
+# uui#!/usr/bin/env python
+from __future__ import unicode_literals
 from minio import Minio
 from minio.error import ResponseError
 from datetime import datetime, timedelta
 from minio import PostPolicy
+
+import time
+# web server
+import flask
+#import mimetypes
+import json
+from flask import Flask
+from flask import request
+from flask_cors import CORS, cross_origin
+app = Flask(__name__)
+CORS(app)
 
 #minio_server = "127.0.0.1:9000"
 MINIO_SERVER = "139.196.14.215:9000"
@@ -89,13 +101,30 @@ class MinioClient(object):
 def main():
     bucket_name = "mybucket"
     client = MinioClient(bucket_name)
-    #put_url = client.get_presigned_put_url(key="mytestkey")
-    signed_form_data = client.get_presigned_post_url()
+    put_url = client.get_presigned_put_url(key="mytestkey")
+    #signed_form_data = client.get_presigned_post_url()
+    print(put_url)
+    #commmand =  client.format4httpie(signed_form_data)
+    #print(commmand)  # 如何变为js也能上传
+
+@app.route('/get_put_url',methods=["GET",'POST'])
+def get_put_url():
+    object_name = request.args.get('objectName') #中文 url化
+    #content_type = mimetypes.guess_type(object_name)[0]
+
+    bucket_name = "mybucket"
+    client = MinioClient(bucket_name)
+    put_url = client.get_presigned_put_url(key="test") #不能有点号？
+    print(put_url)
+    time.sleep(5) #为了要延时  诡异的bug  单进程的原因？ 之前的为也是这个引起？
+    return flask.jsonify({'url':put_url}) #中文
     #print(put_url)
-    commmand =  client.format4httpie(signed_form_data)
-    print(commmand)  # 如何变为js也能上传
+
+
 
 
 
 if __name__ == '__main__':
-    main()
+    #main()
+    #app.run(host='0.0.0.0',port='5000',processes=2)
+    app.run()
