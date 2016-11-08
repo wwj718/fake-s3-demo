@@ -42,6 +42,7 @@ create-react-app upload-app
 ### start and build
 
 ```
+cd upload-app
 npm start # 开发
 npm run build # 发布
 ```
@@ -53,3 +54,6 @@ build之后到upload-app/build目录下: `python -m SimpleHTTPServer 8000`
 # 开发
 我在mac下开发，对应的minio版本为[darwin-amd64/minio](https://dl.minio.io/server/minio/release/darwin-amd64/minio)
 
+
+# 关于redux
+暂时采用发布订阅模式（事件驱动）吧，可以模范kinto_admin来做

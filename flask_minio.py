@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
+
+# 依赖 ： boto3,flask,flask_cors
+
 import sys;reload(sys);sys.setdefaultencoding('utf8')
 import boto3
 from botocore.client import Config
