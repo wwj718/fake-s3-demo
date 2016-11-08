@@ -1,80 +1,77 @@
 import React, { Component } from 'react';
-//npm install superagent
-var request = require('superagent');
+
+var request = require('superagent');//npm install superagent
 import logo from './logo.svg';
 import './App.css';
-//import { ReactS3Uploader } from 'react-s3-uploader';
-//var ReactS3Uploader = require('react-s3-uploader');
-
-
-//upload compoment
-//https://github.com/FineUploader/react-fine-uploader
-//http://docs.fineuploader.com/branch/master/quickstart/03-setting_up_server.html
-//endpoint  是变化的非常麻烦
-//import FineUploaderTraditional from 'react-fine-uploader'
-//import Gallery from 'react-fine-uploader/components/gallery'
-//import FineUploaderS3 from 'react-fine-uploader/wrappers/s3'
-
-
-// fetch 回调的风格来写  转态的变化  每当变化才上传
-//var put_url = "http://139.196.14.215:9000/mybucket/test.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=3600&X-Amz-Credential=OIV5MPODN1Z2ID8R935X%2F20161101%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20161101T020908Z&X-Amz-Signature=0832716fc7f49d5084259d7af6f0072d9612e90bcf0e879c92ea4ad2a92b987b" //上传的瞬间才获得上传的地址
-
-//整个这个是变化的，组件中需要处理这个变化 state  如何处理变化
-// 直传
-// 经典上传对后端有要求，无法使用
-/*
-const uploader = new FineUploaderTraditional({
-    options: {
-        chunking: {
-            enabled: true
-        },
-        deleteFile: {
-            enabled: true,
-            endpoint: put_url //是个函数就行 ，不会等待返回的  这个需求太常见了, url  signature
-        },
-        request: {
-            endpoint: put_url //this.pros.put_url
-        }, //回调生成 有一个网络请求的过程 s3都有  不会处理转态  准备上传时限请求,改变状态
-        retry: {
-            enableAuto: true
-        }
-    }
-})
-*/
-
-/*
-const uploader = new FineUploaderS3({
-    options: {
-        request: {
-            endpoint: "http://139.196.14.215:9000/minio",
-            accessKey: "OIV5MPODN1Z2ID8R935X"
-        },
-        signature: {
-            endpoint: "http://127.0.0.1:5000/get_put_url"
-        }
-    }
-})
-*/
-
-
 var Dropzone = require('react-dropzone');
+//material-ui
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+//import MyAwesomeReactComponent from './MyAwesomeReactComponent';
+import FloatingActionButton from 'material-ui/FloatingActionButton';
+//import ContentAdd from 'material-ui/svg-icons/content/add';
+import UploadIcon from 'material-ui/svg-icons/file/cloud-upload';
 
 
+
+/*
+ * kinto 使用一个类来维持转态，不用redux，传递到各个地方，监听和发布来处理事件
+*/
+
+//bar
+//import LinearProgressExampleDeterminate from './linear_progress.js';
+import LinearProgress from 'material-ui/LinearProgress';
+
+//https://github.com/ruanyf/react-demos  学习demo
+//https://github.com/ruanyf/react-demos#demo08-thisstate
+/*
+//redux
+import { createStore, combineReducers } from 'redux'  //不要用黏合的，太他妈烦了
+
+var itemsReducer = function (state = [], action) {
+    console.log('itemsReducer was called with state', state, 'and action', action)
+
+    switch (action.type) {
+        case 'ADD_ITEM':
+            return [
+                ...state,
+                action.item
+            ]
+        default:
+            return state;
+    }
+}
+
+var reducer = combineReducers({ items: itemsReducer })
+var store_0 = c reateStore(reducer)
+
+store_0.subscribe(function() {
+    console.log('store_0 has been updated. Latest store state:', store_0.getState());
+    // 在这里更新你的视图 , 如何更新
+})
+
+var addItemActionCreator = function (item) {
+    return {
+        type: 'ADD_ITEM',
+        item: item
+    }
+}
+
+store_0.dispatch(addItemActionCreator({ id: 1234, description: 'anything' }))
+////////////////////redux
+*/
 
 function retrieveNewURL(file, callback)
-    { //cb: callback 基于事件，何时回来呢
+    {   // callback 基于事件，何时回来呢
         //可以先本地跑起来服务，flask跑起来 , 之后翻译为django
         const params = {
             objectName: file.name,
             contentType: file.type
         };
         var presignUrl = "http://127.0.0.1:5000/get_put_url"
-        //fetch
         var req = request.get(presignUrl);
         req.query(params);//http://visionmedia.github.io/superagent/#get-requests
         req.end(function(err, res){
         // Calling the end function will send the request
-        //
            var url = res.body['url']
            console.log("retrieveNewURL",res.body['url']);
            callback(url);
@@ -87,59 +84,61 @@ function retrieveNewURL(file, callback)
 // 进度条 html5就能做到 : http://www.ruanyifeng.com/blog/2012/08/file_upload.html
 // The best way to upload files, with progress events, is still using XHR directly rather than fetch
 // http://stackoverflow.com/questions/28750489/upload-file-component-with-reactjs 终极
-  function uploadFile(file, url)
-    {
-        let data = new FormData();
-        data.append(file.name, file)
-        console.log(url);
-        //使用request
-        // fetch 进度条    Upload Progress Bars
-        /*
-        //fetch 不支持进度条 需要用xhr
-        fetch(url,
-        {
-            method: 'PUT',
-            body: data,
-        })*/
-        var req = request.put(url)
-        .set("Content-Type", "application/octet-stream") //ok 没有webkit标识了
-        .send(file)
-        .on('progress', function(e) {
-            console.log('Percentage done: ', e.percent); //ok 如何取消 promise无法被取消  进度条只是ui
-          })
-        req.end(function(err, res){
-        // Calling the end function will send the request
-          //
-           console.log("ok",res);
-        })
-
-
-    }
-
 
 var DropzoneDemo = React.createClass({
     getInitialState: function () {
         return {
-          files: []
+          files: [],
+          completed:0,
         };
     },
+    //内部不能写方法？ 外部去改变
+    //辅助函数
+    change_completed: function(value){
+        this.setState({completed: value});
+    }, //需要绑定到this吗
 
-    /*
-    onDrop: function (acceptedFiles) {
-      this.setState({
-        files: acceptedFiles //变化
-      });
-    },
-    */
+     uploadFile:function(file, url)
+    //You have to bind your event handlers to correct context (this):
+    //普通函数如何改写状态，只能发送信息，要求更改 ,action 发送事件
+    //https://github.com/react-guide/redux-tutorial-cn
+    {
+        //this.setState({completed: 2});
+        //console.log('uploadFile:fun ', this.state.completed,0); //在此有效
+        let data = new FormData();
+        data.append(file.name, file)
+        console.log(url);
+        //进度条    Upload Progress Bars
+        //fetch 不支持进度条 需要用xhr
+        var self = this; //把外部this存下来
+        console.log("开始上传");
+        var req = request.put(url)
+        .set("Content-Type", "application/octet-stream") //移除webkit标识了
+        .send(file)
+        .on('progress',  function(e) {
+    this.setState(function(state){
+        console.log("progress",e.percent
+)
+        return {
+          completed:e.percent,
+        };
+    });
+}.bind(this))
+        req.end(function(err, res){
+           console.log("上传完成",res);
+        }) },
+
     onDrop: function(acceptedFiles){
-        //https://github.com/visionmedia/superagent request
         //retrieveNewURL
-        //var req = request.post('/upload');
+        var topthis=this;
+        //console.log('Percentage done: ', this.state.completed);
+        this.setState({files: acceptedFiles});
         acceptedFiles.forEach((file)=> {
           //先get变化的url
           retrieveNewURL(file, (url) =>
                 {
-                    uploadFile(file, url)
+                    console.log(topthis);
+                    this.uploadFile(file, url)
                 })
             //req.attach(file.name, file);
         });
@@ -150,36 +149,31 @@ var DropzoneDemo = React.createClass({
       this.dropzone.open();
     },
 
+    //ui
     render: function () {
+        var completed = this.state.completed;
         return (
             <div>
                 <Dropzone ref={(node) => { this.dropzone = node; }} onDrop={this.onDrop}>
-                    <div>Try dropping some files here, or click to select files to upload.</div>
+                    <div>将文件拖曳到当前区域或者点击上传.</div>
                 </Dropzone>
-                <button type="button" onClick={this.onOpenClick}>
-                    Open Dropzone
-                </button>
+                <MuiThemeProvider>
+                <LinearProgress mode="determinate" value={this.state.completed} />
+                </MuiThemeProvider>
+                <MuiThemeProvider>
+                  <FloatingActionButton onClick={this.onOpenClick}>
+                    <UploadIcon />
+                  </FloatingActionButton>
+                </MuiThemeProvider>
+
                 {this.state.files.length > 0 ? <div>
-                <h2>Uploading {this.state.files.length} files...</h2>
-                <div>{this.state.files.map((file) => <img src={file.preview} /> )}</div>
+                <h2>正在上传 {this.state.files.length}  个文件， 完成：{this.state.completed} %...</h2>
+                <div>{this.state.files.map((file) => <img alt="" src={file.preview} /> )}</div> {/*只有图片有效*/}
                 </div> : null}
             </div>
         );
     }
 });
-
-
-/*
-class UploadComponent extends Component {
-    render() {
-        return (
-            <Gallery uploader={ uploader } />
-        )
-    }
-}
-*/
-
-//export default UploadComponent
 
 
 //布局也在app里做 app是应用的概念 一个页面可以视为一个应用
@@ -189,27 +183,14 @@ class App extends Component {
       <div className="App">
         <div className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
+          <h2>文件管理系统（with react）</h2>
         </div>
         <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-          ok
+        欢迎使用文件管理系统
         </p>
         {/*记得加大括号,多行注释也是这个
-         signingUrl是啥
-         <ReactS3Uploader
-    signingUrl="/get_put_url"
-    accept="image/*"
-    preprocess={this.onUploadStart}
-    onProgress={this.onUploadProgress}
-    onError={this.onUploadError}
-    onFinish={this.onUploadFinish}
-    signingUrlHeaders={{ additional: "headers" }}
-    signingUrlQueryParams={{ additional: "query-params" }}
-    uploadRequestHeaders={{ 'x-amz-acl': 'public-read' }}
-    contentDisposition="auto"
-    server="http://127.0.0.1:5000" />
-          */}
+         */}
+
          <DropzoneDemo />
       </div>
     );
